@@ -117,14 +117,25 @@ def measure_latency(model, x_test, batch_size=100):
     return avg_latency_ms
 
 def evaluate_model(model, x_test, y_test):
-    """Evaluate model and return metrics"""
     test_loss, test_acc = model.evaluate(x_test, y_test, verbose=0)
     
-    # Get predictions for F1 score
+    # Check y_test shape and type
+    print(f"y_test shape: {y_test.shape}, type: {type(y_test)}")
+    
+    # Convert one-hot y_test to labels if needed
+    if len(y_test.shape) > 1 and y_test.shape[1] > 1:
+        y_test_labels = np.argmax(y_test, axis=1)
+    else:
+        y_test_labels = y_test
+    
+    print(f"y_test_labels shape: {y_test_labels.shape}, unique labels: {np.unique(y_test_labels)}")
+    
     predictions = model.predict(x_test, verbose=0)
     predicted_classes = np.argmax(predictions, axis=1)
     
-    f1 = f1_score(y_test, predicted_classes, average='weighted')
+    print(f"predicted_classes shape: {predicted_classes.shape}, unique labels: {np.unique(predicted_classes)}")
+    
+    f1 = f1_score(y_test_labels, predicted_classes, average='weighted')
     
     return test_loss, test_acc, f1
 
